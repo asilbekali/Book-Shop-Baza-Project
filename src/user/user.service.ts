@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -24,11 +25,14 @@ export class UserService {
 
     const hashedPassword = bcrypt.hashSync(data.password, 10);
 
+    
+    const userRole = data.role.toUpperCase() as Role;
+
     const newUser = await this.prisma.user.create({
       data: {
         name: data.name,
         password: hashedPassword,
-        role: 'USER', 
+        role: userRole
       },
     });
 
@@ -59,6 +63,6 @@ export class UserService {
   }
 
   async getUserData() {
-    return { message: 'User data retrieved successfully!' }; 
+    return this.prisma.user.findMany()
   }
 }
